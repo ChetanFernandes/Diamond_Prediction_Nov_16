@@ -2,4 +2,4 @@ pandas
 numpy
 flask
 
--e .
+-e . #To trigger setup.py file
