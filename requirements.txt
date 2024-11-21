@@ -3,5 +3,6 @@ flask
 numpy
 seaborn
 scikit-learn
+python = 3.10
 
 -e .
