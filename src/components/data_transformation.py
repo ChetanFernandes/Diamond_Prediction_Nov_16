@@ -21,6 +21,7 @@ class DataTransformationConfig:
 class DataTransformation:
     def __init__(self):
         self.data_transformation_config = DataTransformationConfig()
+        print(  self.data_transformation_config.preprocessor_obj_file_path)
 
     def get_data_transformation_object(self):
         try:
@@ -31,9 +32,9 @@ class DataTransformation:
             numerical_cols = ['carat','depth','table','x','y','z']
 
             #Define the custom ranking for each ordinal variable
-            cut_categories = {'Fair', "Good","Very Good", "Premium","Ideal"}
-            color_categories = {"D","E","F", "G" ,"H" , "I", "J"}
-            clarity_categories = {"I1" ,"SI2" ,"SI1" , "VS2" ,"VS1" , "VVS2", "VVS1", "IF"}
+            cut_categories = ['Fair', "Good","Very Good", "Premium","Ideal"]
+            color_categories = ["D","E","F", "G" ,"H" , "I", "J"]
+            clarity_categories = ["I1" ,"SI2" ,"SI1" , "VS2" ,"VS1" , "VVS2", "VVS1", "IF"]
 
             logging.info("Data Transformation pipeline Initiated")
 
@@ -64,16 +65,24 @@ class DataTransformation:
             raise CustomException(e,sys)
         
 
-    def initiate_data_transformation(self,train_data_path,test_data_path):
+    def initiate_data_transformation(self,train_data_path,test_data_path,x_data_path,raw_data_path):
         try:
             train_df = pd.read_csv(train_data_path)
             test_df = pd.read_csv(test_data_path)
+            x_df = pd.read_csv(x_data_path)
+            y_df = pd.read_csv(raw_data_path)
+            y_df = y_df['price']
+
 
             logging.info("Read train and test data completed")
+
             logging.info(f'Train DataFrame Head : \n{train_df.head().to_string()}')
             logging.info(f'Test DataFrame Head : \n{test_df.head().to_string()}')
+            logging.info(f'X_arr : \n{x_df.head().to_string()}')
+            logging.info(f'Y_df : \n{y_df.head().to_string()}')
 
             logging.info('Obtaining processing Ogject')
+            
             preprocessing_obj = self.get_data_transformation_object()
 
             target_column = 'price'
@@ -97,9 +106,12 @@ class DataTransformation:
             ## Data Transformation
             input_feature_train_arr = preprocessing_obj.fit_transform(input_feature_train_df)
             input_feature_test_arr = preprocessing_obj.transform(input_feature_test_df)  #x_test
+            x_arr = preprocessing_obj.fit_transform(x_df)
 
             train_arr = np.c_[input_feature_train_arr,np.array(target_feature_train_df)] # combining array to DF and later convert to array
             test_arr = np.c_[input_feature_test_arr,np.array(target_feature_test_df)]
+
+
 
             save_object(
                 file_path=self.data_transformation_config.preprocessor_obj_file_path,
@@ -108,7 +120,9 @@ class DataTransformation:
             return (
                    train_arr,
                    test_arr,
-                   self.data_transformation_config.preprocessor_obj_file_path
+                   self.data_transformation_config.preprocessor_obj_file_path,
+                   x_arr,
+                   y_df
             )
 
             logging.info("Applying preprocessing object on training and testing datasets")

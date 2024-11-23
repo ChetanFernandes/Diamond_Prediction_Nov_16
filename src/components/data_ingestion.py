@@ -15,6 +15,9 @@ class DataIngestionconfig: # Class created to save all the variables
     train_data_path:str = os.path.join('artifacts','train.csv')
     test_data_path:str = os.path.join('artifacts','test.csv')
     raw_data_path:str = os.path.join('artifacts','raw.csv')
+    x_data_path:str = os.path.join('artifacts','x.csv')
+    y_data_path:str = os.path.join('artifacts','y.csv')
+
 
 
 ## Create the data ingestion class
@@ -27,6 +30,8 @@ class DataIngestion:
 
         try:
             df = pd.read_csv(os.path.join('notebooks/data','gemstone.csv'))
+            x = df.drop("price", axis = 1)
+            y = df["price"]
 
             logging.info("Data set read as Pandas DataFrame")
 
@@ -34,6 +39,11 @@ class DataIngestion:
             # This line of code ensures that the parent directory of the path stored in self.ingestion_config.raw_data_path exists 
             # before proceeding with any file operations like saving or reading data from that path
             df.to_csv(self.ingestion_config.raw_data_path, index = False)
+            x.to_csv(self.ingestion_config.x_data_path, index = False, header = True)
+            y.to_csv(self.ingestion_config.y_data_path, index = False, header = True)
+
+        
+
 
             logging.info("Raw data is created")
 
@@ -47,6 +57,8 @@ class DataIngestion:
             return(
                    self.ingestion_config.train_data_path,
                    self.ingestion_config.test_data_path,  
+                   self.ingestion_config.x_data_path, 
+                   self.ingestion_config.raw_data_path  
                  )
 
         except Exception as e:
