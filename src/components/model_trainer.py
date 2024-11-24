@@ -58,6 +58,8 @@ class ModelTrainer:
             logging.info(f'Model name with highest accuracy is {model_list[(r2_list.index(max(r2_list)))]} with score of {round(max(r2_list),2)}')
 
             best_model = model_list[(r2_list.index(max(r2_list)))]
+            best_model = models[best_model]
+            print(type(best_model))
 
             save_object(
                 file_path = self.model_trainer_config.trained_model_file_path,
